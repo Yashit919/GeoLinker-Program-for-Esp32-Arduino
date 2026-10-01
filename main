@@ -1,0 +1,51 @@
+
+#include <GeoLinker.h>
+
+HardwareSerial gpsSerial(1);
+
+#define GPS_RX 16
+#define GPS_TX 17
+#define GPS_BAUD 9600
+
+const char* ssid = "yourSSID";
+const char* password = "yourPassword";
+
+const char* apiKey = "xxxxxxxxxxxx";
+const char* deviceID = "ESP-32_Tracker";
+
+const uint16_t updateInterval = 2;
+const bool enableOfflineStorage = true;
+const uint8_t offlineBufferLimit = 20;
+
+const bool enableAutoReconnect = true;
+
+const int8_t timeOffsetHours = 5;
+const int8_t timeOffsetMinutes = 30;
+
+GeoLinker geo;
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  gpsSerial.begin(GPS_BAUD, SERIAL_8N1, GPS_RX, GPS_TX);
+
+  geo.begin(gpsSerial);
+  geo.setApiKey(apiKey);
+  geo.setDeviceID(deviceID);
+  geo.setUpdateInterval_seconds(updateInterval);
+  geo.setDebugLevel(DEBUG_BASIC);
+  geo.enableOfflineStorage(enableOfflineStorage);
+  geo.enableAutoReconnect(enableAutoReconnect);
+  geo.setOfflineBufferLimit(offlineBufferLimit);
+  geo.setTimeOffset(timeOffsetHours, timeOffsetMinutes);
+
+  geo.setNetworkMode(GEOLINKER_WIFI);
+  geo.setWiFiCredentials(ssid, password);
+  geo.connectToWiFi();
+}
+
+void loop() {
+  uint8_t status = geo.loop();
+  delay(100);
+}
